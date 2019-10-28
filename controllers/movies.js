@@ -1,4 +1,5 @@
 const movieModel = require('../models/movies');
+const apiLibray = require('../common/api.library');
 module.exports = {
     getById: function(req, res, next) {
         console.log(req.body);

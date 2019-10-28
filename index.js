@@ -1,7 +1,8 @@
 // common files
 const config = require('./common/env.config'),
+    apiLibray = require('./common/api.library'),
     express = require('express'),
-    auth = require('./common/auth')
+    auth = require('./controllers/user')
     logger = require('morgan'),
     movieRoutes = require('./routes/movies'),
     userRoutes = require('./routes/users'),
@@ -11,12 +12,13 @@ const config = require('./common/env.config'),
 
 // connection to mongodb
 mongoose.connection.on('error', console.error.bind(console, 'Could not connect to the MongoDB...'));
+mongoose.set('useCreateIndex', true);
 
 // Log if development mode is true
 if (config.development == true) {
     app.use(logger('dev'));
 }
-
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
 }));
@@ -26,13 +28,14 @@ app.use(bodyParser.urlencoded({
 app.use('/users', userRoutes);
 
 // Routing for movies model
-app.use('/movies', auth.isAuthorized, movieRoutes);
+app.use('/movies', apiLibray.validateJwtToken, movieRoutes);
 
 
 app.get('/', function(req, res) {
-    res.json({
-        "tutorial": "Build REST API with node.js"
-    });
+    let clientResponse=apiLibray.responseSuccess(true,200,'Welcome to REST API design tutorial...');
+    res.json(
+        clientResponse
+    );
 });
 
 // handle 404 error
@@ -45,15 +48,21 @@ app.use(function(req, res, next) {
 // handle errors
 app.use(function(err, req, res, next) {
     console.log(err);
-
     if (err.status === 404)
-        res.status(404).json({
-            message: "Not found"
-        });
+    {
+        let clientResponse=apiLibray.responseSuccess(false,500,'Something is not working...');
+        res.json(
+            clientResponse
+        );
+    }
     else
-        res.status(500).json({
-            message: "Something looks wrong :( !!!"
-        });
+    {
+        let clientResponse=apiLibray.responseSuccess(false,500,'Something is not working...');
+        res.json(
+            clientResponse
+        );
+    }
+        
 });
 
 app.listen(config.port, function() {

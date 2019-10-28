@@ -1,33 +1,35 @@
 const userModel = require('../models/users');
+const apiLibray = require('../common/api.library');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 module.exports = {
     welcome: function(req, res, next) {
 
-        res.json({
-            status: "success",
-            message: "User added successfully!!!",
-            data: null
-        });
+        let clientResponse = apiLibray.responseSuccess(true, 200, 'This is user endpoint...');
+        res.json(
+            clientResponse
+        );
 
     },
-    create: function(req, res, next) {
+    createUser: function(req, res, next) {
 
-        userModel.create({
-            name: req.body.name,
-            email: req.body.email,
-            password: req.body.password
-        }, function(err, result) {
-            if (err)
-                next(err);
-            else
-                res.json({
-                    status: "success",
-                    message: "User added successfully!!!",
-                    data: null
-                });
-
-        });
+        const name=req.body.name;
+        console.log("name"+req.body);
+        console.log("name"+name);
+        userModel.create(req.body)
+            .then(function(newUser) {
+                console.log('New User Created!', newUser);
+                res.json(newUser);
+            })
+            .catch(function(err) {
+                if (err.name == 'ValidationError') {
+                    console.error('Error Validating!', err);
+                    res.status(422).json(err);
+                } else {
+                    console.error(err);
+                    res.status(500).json(err);
+                }
+            })
     },
     authenticate: function(req, res, next) {
         userModel.findOne({
