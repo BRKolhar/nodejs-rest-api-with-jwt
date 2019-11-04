@@ -1,13 +1,12 @@
 // common files
-const config = require('./common/env.config'),
-    apiLibray = require('./common/api.library'),
+const config = require('./config/global/global.config');
+const apiLibray = require(`./${config.libraryPath}/api.library`),
     express = require('express'),
-    auth = require('./controllers/user')
     logger = require('morgan'),
-    movieRoutes = require('./routes/movies'),
-    userRoutes = require('./routes/users'),
+    movieRoutes = require(`./${config.routePath}/movie.route`),
+    userRoutes = require(`./${config.routePath}/user.route`),
     bodyParser = require('body-parser'),
-    mongoose = require('./common/database'),
+    mongoose = require(`./${config.dbPath}/mongodb.config`),
     app = express();
 
 // connection to mongodb
@@ -23,12 +22,13 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-
+// API base
+var APIPath = '/api/v/1';
 // Routing for users model
-app.use('/users', userRoutes);
+app.use(APIPath+'/user', userRoutes);
 
 // Routing for movies model
-app.use('/movies', apiLibray.validateJwtToken, movieRoutes);
+app.use(APIPath+'/movie', apiLibray.validateJwtToken, movieRoutes);
 
 
 app.get('/', function(req, res) {

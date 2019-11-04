@@ -18,5 +18,9 @@
     "mongoose": "^5.7.5",
     "morgan": "^1.9.1",
     "node-input-validator": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3"
   }
 }

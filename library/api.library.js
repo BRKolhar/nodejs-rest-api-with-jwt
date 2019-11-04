@@ -1,3 +1,6 @@
+const jwt = require('jsonwebtoken');
+const userModel = require('../models/user/user.model');
+const config = require('../config/global/global.config');
 module.exports = {
     responseSuccess: function(success=null,code=null,message=null,data=null) {
         
@@ -26,7 +29,7 @@ module.exports = {
     if (token) {
         const user = parseToken(token);
 
-        User.findById(user.userId, function(err, user) {
+        userModel.findById(user.userId, function(err, user) {
             if (err) {
                 return res.status(422).send({
                     errors: normalizeErrors(err.errors)
@@ -54,7 +57,8 @@ function notAuthorized(res) {
     return res.status(401).send({
         errors: [{
             title: 'Not authorized!',
-            detail: 'You need to login to get access!'
+            detail: 'You need to login to get access!',
+            redirectUrl:'/login'
         }]
     });
 }
